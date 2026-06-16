@@ -1,0 +1,342 @@
+:root {
+  /* Core Color Palette - Spotify Inspired Dark Mode */
+  --bg-base: #000000;
+  --bg-elevated: #121212;
+  --bg-card: #181818;
+  --bg-hover: #2a2a2a;
+  
+  /* Typography Colors */
+  --text-main: #ffffff;
+  --text-muted: #a7a7a7;
+  
+  /* Brand Accents */
+  --accent: #1DB954;
+  --accent-hover: #1ed760;
+  
+  /* Structural Elements */
+  --border: #282828;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* Font Stack */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Base Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Hero Section */
+.hero {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+
+.hero .accent {
+  color: var(--accent);
+}
+
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* Card Component Layout */
+.card {
+  background-color: var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+}
+
+.card-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+}
+
+/* Upload Section Styles */
+.upload-section {
+  background: var(--bg-card);
+  padding: 32px;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.file-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  background-color: transparent;
+  border: 1px dashed #555;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.file-label:hover {
+  border-color: var(--accent);
+  color: #fff;
+  background-color: rgba(29, 185, 84, 0.05);
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--text-main);
+  color: #000;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 14px 36px;
+  border-radius: 500px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Error Alerts */
+.alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.alert-error {
+  background-color: rgba(226, 33, 52, 0.1);
+  color: #ff4b4b;
+  border: 1px solid rgba(226, 33, 52, 0.2);
+}
+
+/* Main Grid Layout for Results */
+.results-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr; /* Constrained left column */
+  gap: 24px;
+  align-items: start;
+}
+
+/* Collapse to single column on mobile/tablets */
+@media (max-width: 860px) {
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ULTIMATE FIX: The Sticky Image Card */
+.sticky-card {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  /* Lock the entire card height so it cannot stretch past the screen */
+  max-height: calc(100vh - 48px); 
+}
+
+/* ULTIMATE FIX: The Image Wrapper */
+.image-wrapper {
+  flex: 1;
+  min-height: 0; /* CRITICAL for allowing scroll in flex children */
+  max-height: 550px; /* HARD PIXEL LIMIT - It will never exceed this */
+  overflow-y: auto; /* Scroll internally if the image is taller than 550px */
+  border-radius: var(--radius-sm);
+  background-color: #000;
+  border: 1px solid #333;
+}
+
+/* Custom Scrollbar for the Image Wrapper */
+.image-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+.image-wrapper::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Data Tables */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+
+td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+  background-color: var(--bg-hover);
+  border-radius: var(--radius-sm);
+}
+
+.index-col {
+  color: var(--text-muted);
+  width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.track-title {
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 2px;
+  font-size: 1rem;
+}
+
+.track-artist {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-green {
+  background-color: rgba(29, 185, 84, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+}
+
+.badge-gray {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid #444;
+}
+
+/* Green Dot Indicator */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.green {
+  background-color: var(--accent);
+  box-shadow: 0 0 8px rgba(29, 185, 84, 0.8);
+}
+
+/* Empty States */
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+}

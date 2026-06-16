@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music OCR Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        spotify: '#1DB954',
+                        surface: '#121212',
+                        elevated: '#181818',
+                        borderGray: '#2a2a2a'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        body { background-color: #000000; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapsible-active { max-height: 500px; overflow-y: auto; }
+    </style>
+</head>
+<body class="text-white min-h-screen pb-24 selection:bg-spotify selection:text-black">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-extrabold tracking-tight mb-4 italic">Spotify OCR<span class="text-spotify">V 50</span></h1>
+            <p class="text-gray-400 text-lg">This line is out of asthetics.</p>
+        </header>
+
+        <div class="max-w-3xl mx-auto mb-12">
+            <div class="bg-surface border border-borderGray rounded-2xl p-6 shadow-2xl">
+                <form method="post" enctype="multipart/form-data" class="flex flex-col gap-6">
+                    <div class="relative group">
+                        <input type="file" name="images" id="file-upload" accept="image/*" multiple required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="document.getElementById('file-name').textContent = this.files.length + ' files selected'" />
+                        <div class="border-2 border-dashed border-gray-700 group-hover:border-spotify transition-all rounded-xl p-8 flex flex-col items-center gap-3">
+                            <span id="file-name" class="text-gray-400">Drag & drop screenshots to begin batch audit</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-spotify hover:bg-opacity-80 text-black font-bold py-3 rounded-full transition-transform active:scale-95">Analyze Batch</button>
+                </form>
+            </div>
+        </div>
+
+        {% if results %}
+        <div class="mb-12 bg-elevated border-2 border-spotify/30 rounded-3xl p-8 shadow-2xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h2 class="text-3xl font-black text-white mb-2">Batch Statistics</h2>
+                    <p class="text-gray-400">Aggregated insights from {{ results|length }} screenshots</p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="exportData('rec')" class="px-5 py-2 bg-spotify/10 border border-spotify text-spotify rounded-full font-bold text-sm hover:bg-spotify hover:text-black transition-all">Export Recommended (CSV)</button>
+                    <button onclick="exportData('all')" class="px-5 py-2 bg-white/5 border border-white/20 text-white rounded-full font-bold text-sm hover:bg-white hover:text-black transition-all">Export All Tracks (CSV)</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                <div class="bg-black/40 p-6 rounded-2xl border border-borderGray">
+                    <div class="text-spotify text-sm font-bold uppercase tracking-widest mb-1">Recommended</div>
+                    <div class="text-4xl font-black">{{ summary.recommended_tracks|length }}</div>
+                </div>
+                <div class="bg-black/40 p-6 rounded-2xl border border-borderGray">
+                    <div class="text-gray-400 text-sm font-bold uppercase tracking-widest mb-1">Organic</div>
+                    <div class="text-4xl font-black">{{ summary.organic_tracks|length }}</div>
+                </div>
+                <div class="bg-black/40 p-6 rounded-2xl border border-borderGray text-gray-500">
+                    <div class="text-sm font-bold uppercase tracking-widest mb-1">Audit Success Rate</div>
+                    <div class="text-4xl font-black">100%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-24">
+            {% for res in results %}
+            <div class="relative group">
+                <h3 class="text-xl font-bold text-gray-500 mb-6 flex items-center gap-2">
+                    <span class="w-8 h-[2px] bg-borderGray"></span> {{ res.original_filename }}
+                </h3>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                    <div class="lg:col-span-4 sticky top-8">
+                        <div class="bg-surface border border-borderGray rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[60vh]">
+                            <div class="overflow-y-auto custom-scroll p-4 bg-black flex-1">
+                                <img src="{{ res.image_url }}" class="w-full rounded border border-gray-800" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8 space-y-6">
+                        <div class="bg-surface border border-borderGray rounded-2xl overflow-hidden shadow-xl">
+                            <div class="px-6 py-4 bg-elevated border-b border-borderGray flex justify-between items-center">
+                                <h4 class="font-bold">Detected Tracks</h4>
+                                <button onclick="toggleRaw(this)" class="text-xs font-bold text-gray-500 hover:text-white uppercase tracking-widest">View Raw OCR</button>
+                            </div>
+                            
+                            <div class="collapsible-content bg-black/60 font-mono text-[11px] text-gray-400 p-0 border-b border-borderGray">
+                                <pre class="p-6 whitespace-pre-wrap">{{ res.raw_text }}</pre>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <tbody class="divide-y divide-borderGray">
+                                        {% for item in res.all_candidates %}
+                                        <tr class="hover:bg-white/5 transition-colors">
+                                            <td class="px-6 py-4 w-12 text-gray-600 font-mono text-xs">{{ loop.index }}</td>
+                                            <td class="px-6 py-4">
+                                                <div class="font-bold text-white">{{ item.title }}</div>
+                                                <div class="text-xs text-gray-500">{{ item.artist }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                {% if item.recommended %}
+                                                <span class="text-[10px] font-black bg-spotify/10 text-spotify border border-spotify/20 px-2 py-1 rounded uppercase">Rec ({{ item.icon_score }})</span>
+                                                {% else %}
+                                                <span class="text-[10px] font-bold text-gray-600 border border-gray-800 px-2 py-1 rounded uppercase tracking-wider">Organic</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Data passed from Flask to JS for Export
+        const globalSummary = {
+            recommended: {{ summary.recommended_tracks | tojson }},
+            all: {{ summary.all_tracks | tojson }}
+        };
+
+        function exportData(type) {
+            const data = type === 'rec' ? globalSummary.recommended : globalSummary.all;
+            if (!data.length) return alert('No data available to export.');
+
+            const csvRows = ["sep=,", "Title,Artist,Type,Confidence_Score,Source_File"];
+            data.forEach(item => {
+                const row = [
+                    `"${item.title.replace(/"/g, '""')}"`,
+                    `"${item.artist.replace(/"/g, '""')}"`,
+                    item.recommended ? "Recommended" : "Organic",
+                    item.recommended ? item.icon_score : "N/A",
+                    `"${item.source_file}"`
+                ].join(",");
+                csvRows.push(row);
+            });
+
+            const csvContent = "\uFEFF" + csvRows.join("\r\n") + "\r\n";
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `spotify_audit_${type}_${new Date().getTime()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleRaw(btn) {
+            const drawer = btn.parentElement.nextElementSibling;
+            drawer.classList.toggle('collapsible-active');
+            btn.innerText = drawer.classList.contains('collapsible-active') ? "Hide Raw OCR" : "View Raw OCR";
+        }
+    </script>
+</body>
+</html>
